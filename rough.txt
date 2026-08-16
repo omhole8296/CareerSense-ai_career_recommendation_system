@@ -33,3 +33,9 @@ Cybersecurity
 Communication
 Problem Solving
 
+git init
+git add .
+git commit -m "Initial project setup"
+git branch -M main
+git remote add origin https://github.com/omhole8296/CareerSense-ai_career_recommendation_system.git
+git push -u origin main
