@@ -1,0 +1,35 @@
+Data Analyst
+Data Scientist
+Machine Learning Engineer
+Software Developer
+Web Developer
+Business Analyst
+Cybersecurity Analyst
+Cloud Engineer
+
+
+
+
+https://github.com/omhole8296/CareerSense-ai_career_recommendation_system.git
+
+Python
+SQL
+Excel
+Statistics
+Data Analysis
+Machine Learning
+Deep Learning
+NLP
+Power BI
+Tableau
+Java
+JavaScript
+HTML_CSS
+C++
+Git
+Linux
+Cloud
+Cybersecurity
+Communication
+Problem Solving
+

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareerSense — Student Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1C2B22; --paper:#F1EEE2; --paper-dim:#E6E1CE; --paper-card:#FBFAF4;
+    --forest-deep:#14211A; --forest-mid:#233327; --forest-line:#33473A;
+    --sage:#8A9682; --sage-dim:#4C5B48;
+    --gold:#C99A44; --rust:#B14A2C; --good:#5C8A54;
+    --line:#DCD6BF;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--paper);}
+  h1,h2,h3{font-family:'Fraunces',serif; font-weight:700; margin:0 0 .3em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  button{font-family:'Inter',sans-serif; cursor:pointer;}
+  select, input{font-family:'Inter',sans-serif;}
+  :focus-visible{outline:2px solid var(--rust); outline-offset:2px;}
+
+  .app{display:flex; min-height:100vh;}
+
+  /* SIDEBAR */
+  .sidebar{
+    width:250px; flex-shrink:0; background:var(--forest-deep); color:#EDE9DA;
+    display:flex; flex-direction:column; padding:1.5rem 1rem;
+    position:sticky; top:0; height:100vh;
+  }
+  .brand{display:flex; align-items:center; gap:.6rem; padding:.4rem .5rem 1.6rem;}
+  .brand-mark{
+    width:30px; height:30px; border-radius:4px; background:var(--gold);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .brand-mark svg{width:16px; height:16px;}
+  .brand-name{font-family:'Fraunces',serif; font-weight:700; font-size:1.15rem;}
+  nav{display:flex; flex-direction:column; gap:.2rem; flex:1;}
+  .nav-item{
+    display:flex; align-items:center; gap:.7rem;
+    padding:.6rem .7rem; border-radius:5px; border:none; background:transparent;
+    color:#B9C2AE; font-size:.88rem; text-align:left; width:100%;
+  }
+  .nav-item svg{width:17px; height:17px; flex-shrink:0; stroke:currentColor;}
+  .nav-item:hover{background:var(--forest-mid); color:#EDE9DA;}
+  .nav-item.active{background:var(--forest-mid); color:var(--gold); font-weight:600;}
+  .sidebar-foot{
+    border-top:1px solid var(--forest-line); padding-top:1rem; margin-top:1rem;
+    font-family:'JetBrains Mono',monospace; font-size:.72rem; color:var(--sage);
+  }
+  .profile-chip{display:flex; align-items:center; gap:.6rem; padding:.4rem .3rem;}
+  .avatar{width:30px; height:30px; border-radius:50%; background:var(--rust); color:#fff; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0;}
+
+  /* MAIN */
+  main{flex:1; min-width:0;}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.4rem 2.2rem; border-bottom:1px solid var(--line); background:var(--paper);
+    position:sticky; top:0; z-index:5;
+  }
+  .topbar h1{font-size:1.5rem;}
+  .topbar .sub{color:#5C6B57; font-size:.85rem; margin-top:.15rem; font-family:'JetBrains Mono',monospace;}
+  .content{padding:2rem 2.2rem 4rem;}
+  .page{display:none;}
+  .page.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+  @media (prefers-reduced-motion: reduce){ .page.active{animation:none;} }
+
+  /* shared bits */
+  .stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem;}
+  .stat-card{background:var(--paper-card); border:1px solid var(--line); border-radius:8px; padding:1.2rem;}
+  .stat-card .k{font-family:'JetBrains Mono',monospace; font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--rust);}
+  .stat-card .v{font-family:'Fraunces',serif; font-weight:800; font-size:1.9rem; margin-top:.3rem;}
+  .stat-card .d{font-size:.78rem; color:#5C6B57; margin-top:.2rem;}
+
+  .card{background:var(--paper-card); border:1px solid var(--line); border-radius:8px; padding:1.6rem;}
+  .card + .card{margin-top:1.2rem;}
+  .two{display:grid; grid-template-columns:1.1fr .9fr; gap:1.2rem; align-items:start;}
+  .three{display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem;}
+
+  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--rust); display:block; margin-bottom:.5rem;}
+
+  .btn{
+    background:var(--forest-deep); color:#EDE9DA; border:none; border-radius:5px;
+    padding:.7rem 1.2rem; font-size:.85rem; font-weight:600;
+  }
+  .btn:hover{background:var(--forest-mid);}
+  .btn.ghost{background:transparent; border:1px solid var(--sage-dim); color:var(--ink);}
+  .btn.ghost:hover{background:var(--paper-dim);}
+
+  .rank-row{display:flex; align-items:center; gap:.8rem; padding:.6rem 0; border-bottom:1px dashed var(--line);}
+  .rank-row:last-child{border-bottom:none;}
+  .rank-row .name{width:150px; font-size:.88rem; font-weight:600; flex-shrink:0;}
+  .rank-row .track{flex:1; height:9px; background:var(--paper-dim); border-radius:5px; overflow:hidden;}
+  .rank-row .fill{height:100%; background:linear-gradient(90deg,var(--rust),var(--gold));}
+  .rank-row .pct{width:44px; text-align:right; font-family:'JetBrains Mono',monospace; font-size:.82rem;}
+
+  .checklist label{display:flex; align-items:center; gap:.6rem; padding:.45rem 0; border-bottom:1px solid var(--line); font-size:.87rem; cursor:pointer;}
+  .checklist input{width:16px; height:16px; accent-color:var(--rust);}
+
+  select{width:100%; padding:.6rem .7rem; border:1px solid var(--sage-dim); border-radius:5px; background:#fff; font-size:.85rem; margin-bottom:1rem;}
+
+  .badge{font-family:'JetBrains Mono',monospace; font-size:.72rem; border:1px solid var(--sage-dim); padding:.25rem .55rem; border-radius:3px; display:inline-block; margin:.15rem .3rem .15rem 0;}
+  .badge.have{color:var(--good); border-color:var(--good);}
+  .badge.missing{color:var(--rust); border-color:var(--rust);}
+
+  .activity-item{display:flex; gap:.8rem; padding:.6rem 0; border-bottom:1px solid var(--line); font-size:.85rem;}
+  .activity-item:last-child{border-bottom:none;}
+  .activity-dot{width:8px; height:8px; border-radius:50%; background:var(--gold); margin-top:.4rem; flex-shrink:0;}
+  .activity-item .t{color:#5C6B57; font-family:'JetBrains Mono',monospace; font-size:.72rem;}
+
+  /* trail map (roadmap page) */
+  .trail-svg{width:100%; height:auto; display:block;}
+  .checkpoint{cursor:pointer;}
+  .checkpoint circle{transition:fill .15s ease;}
+  .checkpoint:hover circle,.checkpoint:focus circle{fill:var(--gold);}
+  .cp-label{font-family:'JetBrains Mono',monospace; font-size:11px; fill:#5C6B57;}
+  .trail-detail{margin-top:1.2rem; border:1px solid var(--line); border-radius:8px; padding:1.2rem 1.4rem; background:var(--paper-dim); min-height:70px;}
+  .trail-detail .cp-title{font-family:'JetBrains Mono',monospace; color:var(--rust); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; margin-bottom:.4rem;}
+
+  /* resume analyzer */
+  .dropzone{border:2px dashed var(--sage-dim); border-radius:8px; padding:2.4rem 1.5rem; text-align:center; color:#5C6B57; font-size:.88rem;}
+  .dropzone svg{width:28px; height:28px; margin-bottom:.6rem; stroke:var(--sage-dim);}
+  #resume-file{display:none;}
+  .result-hidden{display:none;}
+
+  /* job market charts */
+  .bar-chart .row{display:flex; align-items:center; gap:.8rem; margin:.55rem 0;}
+  .bar-chart .lbl{width:100px; font-size:.82rem; font-family:'JetBrains Mono',monospace; flex-shrink:0;}
+  .bar-chart .track{flex:1; height:16px; background:var(--paper-dim); border-radius:3px; overflow:hidden;}
+  .bar-chart .fill{height:100%; background:var(--rust);}
+  .bar-chart .val{width:34px; font-size:.78rem; font-family:'JetBrains Mono',monospace; text-align:right;}
+
+  table.data{width:100%; border-collapse:collapse; font-size:.85rem;}
+  table.data th, table.data td{text-align:left; padding:.55rem .4rem; border-bottom:1px solid var(--line);}
+  table.data th{font-family:'JetBrains Mono',monospace; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--rust);}
+
+  .profile-skills .row{display:flex; align-items:center; gap:.8rem; margin:.6rem 0;}
+  .profile-skills .lbl{width:130px; font-size:.85rem; flex-shrink:0;}
+  input[type=range]{flex:1; accent-color:var(--rust);}
+  .profile-skills .val{width:32px; text-align:right; font-family:'JetBrains Mono',monospace; font-size:.8rem;}
+
+  @media (max-width:980px){
+    .stat-grid{grid-template-columns:repeat(2,1fr);}
+    .two, .three{grid-template-columns:1fr;}
+  }
+  @media (max-width:760px){
+    .sidebar{position:fixed; left:-260px; z-index:20; transition:left .2s ease; box-shadow:0 0 40px rgba(0,0,0,.3);}
+    .sidebar.open{left:0;}
+    .content{padding:1.2rem;}
+    .topbar{padding:1rem 1.2rem;}
+    .menu-btn{display:inline-flex !important;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#14211A" stroke-width="2.4"><path d="M4 20 L10 8 L14 14 L20 4"/></svg></div>
+      <div class="brand-name">CareerSense</div>
+    </div>
+    <nav id="nav">
+      <button class="nav-item" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-page="career">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r=".6" fill="currentColor"/></svg>
+        Career Match
+      </button>
+      <button class="nav-item" data-page="skillgap">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 20 L4 10 M10 20 L10 5 M16 20 L16 13 M22 20 L4 20"/></svg>
+        Skill Gap
+      </button>
+      <button class="nav-item" data-page="roadmap">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 20 C 8 20, 8 12, 12 12 S 16 6, 21 4"/><circle cx="21" cy="4" r="1.6" fill="currentColor"/></svg>
+        Roadmap
+      </button>
+      <button class="nav-item" data-page="resume">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M6 2 H15 L19 6 V22 H6 Z"/><path d="M15 2 V6 H19"/><path d="M9 12 H15 M9 16 H15"/></svg>
+        Resume Analyzer
+      </button>
+      <button class="nav-item" data-page="jobs">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 17 L9 11 L13 15 L21 6"/><path d="M21 6 H15 M21 6 V12"/></svg>
+        Job Market
+      </button>
+      <button class="nav-item" data-page="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21 C 4 15.5, 8 14, 12 14 S 20 15.5, 20 21"/></svg>
+        Profile
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="profile-chip">
+        <div class="avatar">AR</div>
+        <div>Aditi Rao<br><span style="color:var(--sage);">B.Tech CSE · Final Year</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <button class="menu-btn btn ghost" id="menu-btn" style="display:none; margin-bottom:.6rem;">Menu</button>
+        <h1 id="page-title">Dashboard</h1>
+        <div class="sub" id="page-sub">student_id: 20451 · last synced just now</div>
+      </div>
+      <button class="btn" onclick="go('skillgap')">Run Skill Gap Check</button>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section class="page active" id="page-dashboard">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="k">Overall readiness</div><div class="v">62%</div><div class="d">for Data Scientist</div></div>
+          <div class="stat-card"><div class="k">Skills logged</div><div class="v">12</div><div class="d">4 core, 8 supporting</div></div>
+          <div class="stat-card"><div class="k">Roadmap progress</div><div class="v">2 / 6</div><div class="d">months completed</div></div>
+          <div class="stat-card"><div class="k">Projects</div><div class="v">3</div><div class="d">1 in progress</div></div>
+        </div>
+
+        <div class="two">
+          <div class="card">
+            <span class="eyebrow">Top career matches</span>
+            <div class="rank-row"><span class="name">Data Scientist</span><div class="track"><div class="fill" style="width:87%;"></div></div><span class="pct">87%</span></div>
+            <div class="rank-row"><span class="name">Data Analyst</span><div class="track"><div class="fill" style="width:82%;"></div></div><span class="pct">82%</span></div>
+            <div class="rank-row"><span class="name">ML Engineer</span><div class="track"><div class="fill" style="width:71%;"></div></div><span class="pct">71%</span></div>
+            <div class="rank-row"><span class="name">Business Analyst</span><div class="track"><div class="fill" style="width:64%;"></div></div><span class="pct">64%</span></div>
+            <div style="margin-top:1rem;"><button class="btn ghost" onclick="go('career')">See full breakdown →</button></div>
+          </div>
+          <div class="card">
+            <span class="eyebrow">Recent activity</span>
+            <div class="activity-item"><div class="activity-dot"></div><div>Completed course <strong>Statistics Fundamentals</strong><div class="t">2 days ago</div></div></div>
+            <div class="activity-item"><div class="activity-dot"></div><div>Added project <strong>Customer Churn Prediction</strong><div class="t">6 days ago</div></div></div>
+            <div class="activity-item"><div class="activity-dot"></div><div>Logged skill <strong>SQL — advanced</strong><div class="t">11 days ago</div></div></div>
+            <div class="activity-item"><div class="activity-dot"></div><div>Uploaded resume for scoring<div class="t">14 days ago</div></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CAREER MATCH -->
+      <section class="page" id="page-career">
+        <div class="two">
+          <div class="card">
+            <span class="eyebrow">Your profile inputs</span>
+            <div class="checklist" id="career-skills">
+              <label><input type="checkbox" checked value="Python">Python</label>
+              <label><input type="checkbox" checked value="SQL">SQL</label>
+              <label><input type="checkbox" checked value="Statistics">Statistics</label>
+              <label><input type="checkbox" value="Machine Learning">Machine Learning</label>
+              <label><input type="checkbox" value="Deep Learning">Deep Learning</label>
+              <label><input type="checkbox" value="Excel">Excel</label>
+              <label><input type="checkbox" value="Power BI">Power BI</label>
+              <label><input type="checkbox" value="Communication">Strong communication</label>
+            </div>
+            <div style="margin:1rem 0 .3rem; font-size:.82rem; color:#5C6B57;">Projects completed</div>
+            <input type="range" id="career-projects" min="0" max="6" value="3" style="width:100%;">
+            <div style="margin:1rem 0 .3rem; font-size:.82rem; color:#5C6B57;">Primary interest</div>
+            <select id="career-interest">
+              <option value="data">Data & analytics</option>
+              <option value="build">Building software</option>
+              <option value="research">Research & modeling</option>
+            </select>
+            <button class="btn" style="width:100%;" onclick="runCareerModel()">Predict career fit</button>
+          </div>
+          <div>
+            <div class="card">
+              <span class="eyebrow">Predicted matches</span>
+              <div id="career-results"></div>
+            </div>
+            <div class="card">
+              <span class="eyebrow">Why this top match</span>
+              <ul id="career-why" class="checklist" style="list-style:none; padding:0;"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SKILL GAP -->
+      <section class="page" id="page-skillgap">
+        <div class="two">
+          <div class="card">
+            <span class="eyebrow">Target role</span>
+            <select id="role-select"></select>
+            <span class="eyebrow" style="margin-top:.4rem;">Skills you have</span>
+            <div class="checklist" id="skill-checks"></div>
+          </div>
+          <div class="card">
+            <span class="eyebrow">Readiness</span>
+            <div style="font-family:'Fraunces',serif; font-weight:800; font-size:2.6rem;" id="readiness-num">0%</div>
+            <div class="rank-row" style="border:none; padding-top:.2rem;"><div class="track" style="height:10px;"><div class="fill" id="readiness-fill" style="width:0%;"></div></div></div>
+            <span class="eyebrow" style="margin-top:1rem;">Missing skills</span>
+            <div id="missing-badges"></div>
+            <span class="eyebrow" style="margin-top:1rem;">Next recommended</span>
+            <div id="next-skill" style="font-weight:600;">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ROADMAP -->
+      <section class="page" id="page-roadmap">
+        <div class="card">
+          <span class="eyebrow">Six-month path to Data Scientist</span>
+          <svg class="trail-svg" viewBox="0 0 900 210" role="group" aria-label="Roadmap trail with six checkpoints">
+            <path d="M 30 180 C 150 180, 150 140, 230 140 S 330 95, 400 95 S 500 55, 570 55 S 670 28, 750 28 S 830 8, 870 8"
+                  fill="none" stroke="var(--line)" stroke-width="2" stroke-dasharray="1 10" stroke-linecap="round"/>
+            <g class="checkpoint" tabindex="0" data-i="0" transform="translate(30,180)"><circle r="7" fill="var(--sage)"/><text class="cp-label" x="0" y="24" text-anchor="middle">M1</text></g>
+            <g class="checkpoint" tabindex="0" data-i="1" transform="translate(230,140)"><circle r="7" fill="var(--sage)"/><text class="cp-label" x="0" y="24" text-anchor="middle">M2</text></g>
+            <g class="checkpoint" tabindex="0" data-i="2" transform="translate(400,95)"><circle r="7" fill="var(--sage)"/><text class="cp-label" x="0" y="-13" text-anchor="middle">M3</text></g>
+            <g class="checkpoint" tabindex="0" data-i="3" transform="translate(570,55)"><circle r="7" fill="var(--sage)"/><text class="cp-label" x="0" y="-13" text-anchor="middle">M4</text></g>
+            <g class="checkpoint" tabindex="0" data-i="4" transform="translate(750,28)"><circle r="7" fill="var(--sage)"/><text class="cp-label" x="0" y="-13" text-anchor="middle">M5</text></g>
+            <g class="checkpoint" tabindex="0" data-i="5" transform="translate(870,8)"><circle r="8" fill="var(--gold)"/><text class="cp-label" x="-14" y="-13" text-anchor="middle" fill="var(--rust)">SUMMIT</text></g>
+          </svg>
+          <div class="trail-detail">
+            <div class="cp-title" id="rd-title">Month 1</div>
+            <div class="mono" id="rd-body" style="font-size:.9rem;">Learn: Statistics, Probability</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESUME -->
+      <section class="page" id="page-resume">
+        <div class="two">
+          <div class="card">
+            <span class="eyebrow">Upload resume</span>
+            <label for="resume-file">
+              <div class="dropzone">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 3 V15 M7 8 L12 3 L17 8"/><path d="M4 17 V20 H20 V17"/></svg>
+                <div>Click to upload — PDF or DOCX</div>
+              </div>
+            </label>
+            <input type="file" id="resume-file" accept=".pdf,.doc,.docx">
+            <select id="resume-role" style="margin-top:1rem;">
+              <option>Data Scientist</option>
+              <option>ML Engineer</option>
+              <option>Data Analyst</option>
+            </select>
+            <button class="btn" style="width:100%;" onclick="runResumeAnalysis()">Analyze against role</button>
+          </div>
+          <div class="card">
+            <span class="eyebrow">Score breakdown</span>
+            <div id="resume-result" class="result-hidden">
+              <div style="font-family:'Fraunces',serif; font-weight:800; font-size:2.2rem;">71%</div>
+              <div class="rank-row"><span class="name">Skills match</span><div class="track"><div class="fill" style="width:78%;"></div></div><span class="pct">78%</span></div>
+              <div class="rank-row"><span class="name">Projects match</span><div class="track"><div class="fill" style="width:65%;"></div></div><span class="pct">65%</span></div>
+              <div class="rank-row"><span class="name">Education match</span><div class="track"><div class="fill" style="width:90%;"></div></div><span class="pct">90%</span></div>
+              <div class="rank-row"><span class="name">Experience match</span><div class="track"><div class="fill" style="width:45%;"></div></div><span class="pct">45%</span></div>
+              <span class="eyebrow" style="margin-top:1rem;">Missing keywords</span>
+              <span class="badge missing">NLP</span><span class="badge missing">Deep Learning</span><span class="badge missing">TensorFlow</span>
+            </div>
+            <div id="resume-empty" style="color:#5C6B57; font-size:.88rem;">Upload a resume and run the analysis to see results here.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- JOB MARKET -->
+      <section class="page" id="page-jobs">
+        <div class="card">
+          <span class="eyebrow">Most in-demand skills</span>
+          <select id="jobs-role">
+            <option>Data Analyst</option>
+            <option>Data Scientist</option>
+            <option>ML Engineer</option>
+          </select>
+          <div class="bar-chart" id="jobs-chart"></div>
+        </div>
+        <div class="card">
+          <span class="eyebrow">Recent postings (sample)</span>
+          <table class="data">
+            <tr><th>Role</th><th>Company type</th><th>Location</th><th>Experience</th></tr>
+            <tr><td>Data Analyst</td><td>Fintech startup</td><td>Bengaluru</td><td>0–2 yrs</td></tr>
+            <tr><td>Junior Data Scientist</td><td>E-commerce</td><td>Pune</td><td>0–1 yrs</td></tr>
+            <tr><td>ML Engineer Intern</td><td>SaaS</td><td>Remote</td><td>Intern</td></tr>
+            <tr><td>BI Analyst</td><td>Consulting</td><td>Hyderabad</td><td>1–3 yrs</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="page" id="page-profile">
+        <div class="two">
+          <div class="card">
+            <span class="eyebrow">Student profile</span>
+            <div style="font-size:.9rem; line-height:1.9;">
+              <strong>Name:</strong> Aditi Rao<br>
+              <strong>Program:</strong> B.Tech Computer Science, Final Year<br>
+              <strong>CGPA:</strong> 8.2 / 10<br>
+              <strong>Target career:</strong> Data Scientist<br>
+              <strong>Certifications:</strong> 2 · <strong>Projects:</strong> 3
+            </div>
+          </div>
+          <div class="card">
+            <span class="eyebrow">Self-rated skill levels</span>
+            <div class="profile-skills" id="profile-skills"></div>
+            <p style="font-size:.78rem; color:#5C6B57; margin-top:.8rem;">Adjust and the model retrains your readiness score next time you visit Skill Gap.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+/* ---------------- navigation ---------------- */
+const titles = {
+  dashboard:["Dashboard","Overview of your career readiness"],
+  career:["Career Match","Predicted careers ranked by fit"],
+  skillgap:["Skill Gap Analysis","Compare your skills against a target role"],
+  roadmap:["Roadmap","Your personalized month-by-month plan"],
+  resume:["Resume Analyzer","Score your resume against a target role"],
+  jobs:["Job Market","What the market is actually hiring for"],
+  profile:["Profile","Your stored skills and academic record"]
+};
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
+  document.getElementById('page-title').textContent = titles[page][0];
+  document.getElementById('page-sub').textContent = titles[page][1];
+  document.getElementById('sidebar').classList.remove('open');
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.nav-item').forEach(btn=>{
+  btn.addEventListener('click', ()=>go(btn.dataset.page));
+});
+document.getElementById('menu-btn').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+});
+if(window.innerWidth<=760){ document.getElementById('menu-btn').style.display='inline-flex'; }
+
+/* ---------------- Career Match page ---------------- */
+function runCareerModel(){
+  const checked = Array.from(document.querySelectorAll('#career-skills input:checked')).map(i=>i.value);
+  const projects = +document.getElementById('career-projects').value;
+  const interest = document.getElementById('career-interest').value;
+
+  const weights = {
+    "Data Scientist": {skills:["Python","SQL","Statistics","Machine Learning","Deep Learning"], interestBoost:{data:12,research:14,build:2}},
+    "Data Analyst": {skills:["Python","SQL","Excel","Power BI","Communication"], interestBoost:{data:14,research:2,build:2}},
+    "ML Engineer": {skills:["Python","Machine Learning","Deep Learning"], interestBoost:{data:4,research:10,build:12}},
+    "Business Analyst": {skills:["Excel","Power BI","Communication","SQL"], interestBoost:{data:8,research:2,build:2}}
+  };
+  const results = Object.entries(weights).map(([role,cfg])=>{
+    const hit = cfg.skills.filter(s=>checked.includes(s)).length;
+    let score = (hit/cfg.skills.length)*70 + Math.min(projects,5)*4 + cfg.interestBoost[interest];
+    score = Math.max(8, Math.min(97, Math.round(score)));
+    return {role, score, hit, total:cfg.skills.length};
+  }).sort((a,b)=>b.score-a.score);
+
+  const box = document.getElementById('career-results');
+  box.innerHTML = results.map(r=>`
+    <div class="rank-row">
+      <span class="name">${r.role}</span>
+      <div class="track"><div class="fill" style="width:${r.score}%;"></div></div>
+      <span class="pct">${r.score}%</span>
+    </div>`).join('');
+
+  const top = results[0];
+  const why = document.getElementById('career-why');
+  const reasons = [];
+  if(checked.includes("Python")) reasons.push("Strong Python skills");
+  if(checked.includes("SQL")) reasons.push("Strong SQL skills");
+  if(checked.includes("Statistics")) reasons.push("Good statistics grounding");
+  if(projects>=3) reasons.push(projects+" relevant projects completed");
+  reasons.push("Stated interest: " + ({data:"data & analytics",build:"building software",research:"research & modeling"}[interest]));
+  why.innerHTML = reasons.map(r=>`<li style="display:flex; gap:.5rem; border:none; padding:.3rem 0;"><span style="color:var(--gold);">✓</span>${r}</li>`).join('')
+    + `<li style="border:none; padding-top:.6rem; font-family:'Fraunces',serif; font-weight:700; color:var(--rust);">→ ${top.role} — ${top.score}% confidence</li>`;
+}
+runCareerModel();
+
+/* ---------------- Skill Gap page ---------------- */
+const ROLE_SKILLS = {
+  "Data Scientist": ["Python","SQL","Statistics","Machine Learning","Deep Learning","NLP"],
+  "ML Engineer": ["Python","SQL","Machine Learning","Deep Learning","TensorFlow","Docker"],
+  "Data Analyst": ["Python","SQL","Excel","Power BI","Statistics"]
+};
+const ALL_SKILLS = ["Python","SQL","Statistics","Machine Learning","Deep Learning","TensorFlow","NLP","Power BI","Excel","Docker"];
+const roleSelect = document.getElementById('role-select');
+Object.keys(ROLE_SKILLS).forEach(r=>{
+  const o = document.createElement('option'); o.value=r; o.textContent=r; roleSelect.appendChild(o);
+});
+const checksBox = document.getElementById('skill-checks');
+ALL_SKILLS.forEach(skill=>{
+  const label = document.createElement('label');
+  label.innerHTML = `<input type="checkbox" value="${skill}" ${["Python","SQL"].includes(skill)?"checked":""}>${skill}`;
+  checksBox.appendChild(label);
+});
+function updateSkillGap(){
+  const role = roleSelect.value;
+  const required = ROLE_SKILLS[role];
+  const checked = Array.from(checksBox.querySelectorAll('input:checked')).map(i=>i.value);
+  const missing = required.filter(s=>!checked.includes(s));
+  const have = required.length - missing.length;
+  const pct = Math.round((have/required.length)*100);
+  document.getElementById('readiness-num').textContent = pct+"%";
+  document.getElementById('readiness-fill').style.width = pct+"%";
+  const badgeBox = document.getElementById('missing-badges');
+  badgeBox.innerHTML = missing.length ? missing.map(s=>`<span class="badge missing">${s}</span>`).join('') : `<span class="badge have">None — fully ready</span>`;
+  document.getElementById('next-skill').textContent = missing[0] || "You're ready to apply";
+}
+roleSelect.addEventListener('change', updateSkillGap);
+checksBox.addEventListener('change', updateSkillGap);
+roleSelect.value = "Data Scientist";
+updateSkillGap();
+
+/* ---------------- Roadmap page ---------------- */
+const trailContent = [
+  {title:"Month 1", body:"Learn: Statistics, Probability"},
+  {title:"Month 2", body:"Learn: Machine Learning, Scikit-learn"},
+  {title:"Month 3", body:"Build: Customer Churn Prediction project"},
+  {title:"Month 4", body:"Learn: Deep Learning"},
+  {title:"Month 5", body:"Build: Image Classification project"},
+  {title:"Summit — Month 6", body:"Prepare: Resume, coding interviews, ML interview questions. Projected readiness: 82%"}
+];
+document.querySelectorAll('#page-roadmap .checkpoint').forEach(cp=>{
+  const show = ()=>{
+    const i = +cp.dataset.i;
+    document.getElementById('rd-title').textContent = trailContent[i].title;
+    document.getElementById('rd-body').textContent = trailContent[i].body;
+  };
+  cp.addEventListener('click', show);
+  cp.addEventListener('mouseenter', show);
+  cp.addEventListener('keydown', e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault(); show();} });
+});
+
+/* ---------------- Resume Analyzer page ---------------- */
+document.getElementById('resume-file').addEventListener('change', function(){
+  if(this.files.length){
+    document.querySelector('#page-resume .dropzone div:last-child').textContent = this.files[0].name;
+  }
+});
+function runResumeAnalysis(){
+  document.getElementById('resume-empty').style.display='none';
+  document.getElementById('resume-result').classList.remove('result-hidden');
+}
+
+/* ---------------- Job Market page ---------------- */
+const JOB_DEMAND = {
+  "Data Analyst": [["Python",95],["SQL",90],["Power BI",78],["Excel",70],["Statistics",60]],
+  "Data Scientist": [["Python",97],["Statistics",88],["Machine Learning",85],["SQL",80],["Deep Learning",55]],
+  "ML Engineer": [["Python",96],["Machine Learning",90],["TensorFlow",72],["Docker",64],["SQL",58]]
+};
+function renderJobs(){
+  const role = document.getElementById('jobs-role').value;
+  const data = JOB_DEMAND[role];
+  document.getElementById('jobs-chart').innerHTML = data.map(([skill,v])=>`
+    <div class="row"><span class="lbl">${skill}</span><div class="track"><div class="fill" style="width:${v}%;"></div></div><span class="val">${v}%</span></div>
+  `).join('');
+}
+document.getElementById('jobs-role').addEventListener('change', renderJobs);
+renderJobs();
+
+/* ---------------- Profile page ---------------- */
+const PROFILE_SKILLS = [["Python",85],["SQL",80],["Statistics",55],["Machine Learning",40],["Deep Learning",15],["Communication",70]];
+const psBox = document.getElementById('profile-skills');
+PROFILE_SKILLS.forEach(([skill,v])=>{
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `<span class="lbl">${skill}</span><input type="range" min="0" max="100" value="${v}"><span class="val">${v}%</span>`;
+  row.querySelector('input').addEventListener('input', e=>{ row.querySelector('.val').textContent = e.target.value+"%"; });
+  psBox.appendChild(row);
+});
+</script>
+</body>
+</html>
