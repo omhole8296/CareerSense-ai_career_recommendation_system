@@ -1,0 +1,20 @@
+Course_ID,Course_Name,Platform,Skill,Level,Duration
+C001,Python for Data Science,Online,Python,Beginner,8 weeks
+C002,SQL for Data Analysis,Online,SQL,Beginner,6 weeks
+C003,Statistics for Data Science,Online,Statistics,Intermediate,6 weeks
+C004,Data Analysis with Python,Online,Data Analysis,Intermediate,8 weeks
+C005,Machine Learning Specialization,Online,Machine Learning,Intermediate,12 weeks
+C006,Deep Learning Fundamentals,Online,Deep Learning,Advanced,10 weeks
+C007,Natural Language Processing,Online,NLP,Advanced,8 weeks
+C008,Power BI for Data Analytics,Online,Power BI,Beginner,6 weeks
+C009,Tableau for Data Visualization,Online,Tableau,Beginner,6 weeks
+C010,Java Programming,Online,Java,Beginner,10 weeks
+C011,JavaScript Development,Online,JavaScript,Beginner,8 weeks
+C012,HTML and CSS Web Development,Online,HTML_CSS,Beginner,6 weeks
+C013,C++ Programming,Online,C++,Beginner,10 weeks
+C014,Git and GitHub,Online,Git,Beginner,4 weeks
+C015,Linux Fundamentals,Online,Linux,Beginner,6 weeks
+C016,Cloud Computing Fundamentals,Online,Cloud,Beginner,8 weeks
+C017,Cybersecurity Fundamentals,Online,Cybersecurity,Beginner,8 weeks
+C018,Communication Skills,Online,Communication,Beginner,4 weeks
+C019,Problem Solving and Algorithms,Online,Problem Solving,Intermediate,8 weeks

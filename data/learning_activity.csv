@@ -1,0 +1,6 @@
+Activity_ID,Student_ID,Date,Skill,Topic,Hours,Description
+A001,S001,2026-09-20,Python,Pandas DataFrames,2.0,Learned how to filter and manipulate DataFrames
+A002,S001,2026-09-21,SQL,SQL Joins,1.5,Learned INNER JOIN and LEFT JOIN
+A003,S001,2026-09-22,Machine Learning,Linear Regression,2.0,Learned the basics of linear regression
+A004,S002,2026-09-20,Python,Functions,1.0,Practiced Python functions
+A005,S002,2026-09-21,Power BI,Data Visualization,2.0,Created basic Power BI charts
